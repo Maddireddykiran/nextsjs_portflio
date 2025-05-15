@@ -1,0 +1,91 @@
+---
+title: 'Working with Email Start Points'
+abstract: 'A practical guide to implementing and configuring Email Start Points in Adobe LiveCycle ES2 for triggering automated workflows from email events.'
+date: '2023-06-10'
+banner: /static/hello-world-banner.jpg
+---
+
+## Understanding Email Start Points
+
+I have been wondering how the Email Startpoint would work for many months now until last Sunday evening after fighting out hangover whole morning. There aren't many resources or samples out there in the Internet about Email Startpoint. So I thought I could share a sample application that uses Email startpoint and writes a string in tmp directory.
+
+## Requirements
+
+To implement this functionality, you'll need:
+
+- Email Server
+- LiveCycle Server
+- Workbench
+- Basic understanding of LiveCycle processes
+
+## Configuration Steps
+
+Email startpoint requires POP3 and SMTP configuration parameters of your email server. If you do not have access to an Email Server you can download an open source Email Server (http://www.hmailserver.com/) and follow the instructions provided in their documentation to configure your email server.
+
+### Setting Up hMailServer
+
+Create an email account for our LiveCycle server to connect to the Email Server using hMailServer Administrator:
+
+1. Log on to the hMailServer Administrator
+2. Navigate to Domains section in the hierarchy
+3. Click on Add button and give a domain name "r3tek.com"
+4. Click on Add button in the Accounts section under the "r3tek.com" domain
+5. Provide the required details for your new account
+
+*Image: hMailServer Administrator Interface showing domain and account setup*
+
+### Email Start Point Configuration
+
+After creating an email account, gather the following details for configuring our Email startpoint:
+
+1. **Inbox Host**: localhost
+2. **Inbox Protocol**: pop3
+3. **Inbox Port**: 110
+4. **Inbox Time Out**: 60
+5. **Inbox User**: vanam413@r3tek.com
+6. **Inbox Password**: *******
+7. **SMTP Host**: localhost
+8. **SMTP Port**: 25
+9. **SMTP User**: administrator
+10. **SMTP Password**: password
+11. **Send From**: (optional)
+12. **SMTP SSL Enabled**: (optional)
+13. **POP3/IMAP SSL Enabled**: (optional)
+
+## Process Design
+
+Creating a process with Email Start Point involves these steps:
+
+1. Create a LiveCycle application in workbench, named "TestEmailStartPoint"
+2. Create a process "EmailSProcess" that has both Email and Programmatic Start points
+3. Double click on the Email start point and provide the details you gathered from the Email Server
+4. To write a string to a file in a directory, drag and drop abstract activity and define it with Write String Service Operation
+
+That's it! We have created a simple application that uses an email start point and writes a string to a file in the file system.
+
+*Image: LiveCycle Process Design with Email Start Point showing workflow configuration*
+
+## Testing the Implementation
+
+To test this process:
+
+1. Open the hMailServer Administrator
+2. Navigate to Server sendout under Utilities
+3. Provide the email details as needed
+4. Click "Send"
+5. Navigate to the file system location that you provided in the Write String service operation
+
+You should see the file that LiveCycle created and the string content written to it.
+
+## Applications and Use Cases
+
+Email Start Points can be used for various business processes:
+
+- **Document Processing**: Automatically process documents attached to emails
+- **Approval Workflows**: Start approval processes when request emails are received
+- **Notifications**: Generate notification workflows triggered by email events
+- **Data Extraction**: Extract and process data from structured emails
+
+## Conclusion
+
+Email Start Points provide a powerful way to integrate email communications with your automated business processes in LiveCycle. By following the configuration steps outlined in this article, you can create responsive workflows that are triggered by incoming emails, enhancing your business process automation capabilities. 

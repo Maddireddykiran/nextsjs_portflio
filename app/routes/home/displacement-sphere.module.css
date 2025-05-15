@@ -1,0 +1,26 @@
+.canvas {
+  position: absolute;
+  width: 100vw;
+  inset: 0;
+  opacity: 0;
+  transition-property: opacity;
+  transition-duration: 3s;
+  transition-timing-function: var(--bezierFastoutSlowin);
+
+  &[data-visible='true'] {
+    opacity: 1;
+  }
+}
+
+.fallbackBackground {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+  opacity: 1;
+  background: radial-gradient(circle at top right, 
+    color-mix(in lab, var(--accent) 20%, transparent),
+    color-mix(in lab, var(--accent) 5%, transparent) 40%,
+    transparent 60%);
+  z-index: 0;
+}

@@ -1,0 +1,185 @@
+---
+title: 'Invoking an Orchestration Process through a Servlet'
+abstract: 'A step-by-step guide to invoking Adobe LiveCycle short-lived (orchestration) processes through Java servlets using LiveCycle API.'
+date: '2023-04-20'
+banner: /static/hello-world-banner.jpg
+featured: true
+---
+
+## Introduction to LiveCycle Process Invocation
+
+In this tutorial, we will be primarily focusing on invoking a Short-Lived or Orchestration LiveCycle process through a servlet. To be able to understand the tutorial, one should be familiar with J2EE and LiveCycle Processes. This tutorial gives you the step-by-step procedure that one should follow in order to invoke a short lived process. It starts with the Software/Tools, Orchestration Process Design, introduction of Adobe's proprietary Application Programming Interface, LiveCycle Integration Types, and Invocation steps.
+
+## Environment Setup
+
+For the purpose of this tutorial, I used:
+- Netbeans IDE
+- Glassfish 3.0 server
+- LiveCycle ES2
+- JBoss server hosting LiveCycle
+- JDK 1.6
+
+## Understanding Orchestration Processes
+
+Orchestration process is also referred to as Short-lived process. As the name suggests, the purpose of orchestration process is to orchestrate a business process. Generally, it is used to render PDF forms or deliver data to the PDF Form upon user interaction. For extreme simplicity, we will design a process that will take two input strings and returns an output string.
+
+*Image: Orchestration Process Design showing a simple workflow with input and output parameters*
+
+## Adobe's Application Programming Interface
+
+Adobe provides API to program with LiveCycle ES2 services. The API is categorized into two types:
+
+1. **Java Client Library**: Serves the purpose to invoke LiveCycle ES2 Services such as Assembler Service API for assembling multiple PDF documents into one file, Forms Service API to render interactive/dynamic/static PDF documents, etc.
+
+2. **Java Invocation API**: Used to invoke Short-Lived or Human-Centric processes.
+
+## LiveCycle Integration Types
+
+Invoking a LiveCycle from a web application can be done in several ways:
+- Remoting for Flex applications
+- Java API for J2EE applications
+- WebService API for .NET applications
+
+In this tutorial, we will discuss using Java Invocation API with SOAP connection mode.
+
+## Implementation Steps
+
+### 1. Create a Web Project
+
+Create a new web project in your IDE and include the following JAR files in your project:
+- adobe-livecycle-client
+- adobe-usermanager-client
+- adobe-utilities
+- activation
+- axis
+- commons-codec-1.3
+- commons-discovery
+- commons-logging
+- dom3-xml-apis-2.5.0
+- jaxen-1.1
+- jaxrpc
+- log4j
+- mail
+- wsdl4j
+- xalan
+- xbean
+- xercesImpl
+
+### 2. Create a Servlet
+
+In your project, create a servlet that will:
+- Define ServiceClientFactory to hold connection properties
+- Create ServiceClient object to establish a connection with LiveCycle server
+- Create an InvocationRequest object to send an invocation request to LiveCycle process
+- Retrieve the invocation response
+
+### 3. Sample Code
+
+Here's a sample servlet implementation:
+
+```java
+package com.r3tek;
+
+import com.adobe.idp.dsc.DSCException;
+import com.adobe.idp.dsc.InvocationRequest;
+import com.adobe.idp.dsc.InvocationResponse;
+import com.adobe.idp.dsc.clientsdk.ServiceClient;
+import com.adobe.idp.dsc.clientsdk.ServiceClientFactory;
+import com.adobe.idp.dsc.clientsdk.ServiceClientFactoryProperties;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class JavaServlet extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doPost(request, response);
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("text/html;charset=UTF-8");
+        PrintWriter out = response.getWriter();
+        try {
+            // Set connection properties
+            Properties connectionProps = new Properties();
+            connectionProps.setProperty(ServiceClientFactoryProperties.DSC_DEFAULT_SOAP_ENDPOINT, "http://192.168.1.37:8080");
+            connectionProps.setProperty(ServiceClientFactoryProperties.DSC_TRANSPORT_PROTOCOL, ServiceClientFactoryProperties.DSC_SOAP_PROTOCOL);
+            connectionProps.setProperty(ServiceClientFactoryProperties.DSC_SERVER_TYPE, ServiceClientFactoryProperties.DSC_JBOSS_SERVER_TYPE);
+            connectionProps.setProperty(ServiceClientFactoryProperties.DSC_CREDENTIAL_USERNAME, "administrator");
+            connectionProps.setProperty(ServiceClientFactoryProperties.DSC_CREDENTIAL_PASSWORD, "password");
+
+            // Create parameter map
+            Map params = new HashMap();
+            params.put("lname", "vanam");
+            params.put("fname", "Naveen");
+
+            // Create service client and invocation request
+            ServiceClientFactory factory = ServiceClientFactory.createInstance(connectionProps);
+            ServiceClient myServiceClient = factory.getServiceClient();
+            InvocationRequest requestInv = factory.createInvocationRequest(
+                    "TimeSheets/getEmployeeID",
+                    "invoke",
+                    params,
+                    true);
+
+            // Invoke the process and get response
+            InvocationResponse responseInv = myServiceClient.invoke(requestInv);
+            String outPut = (String) responseInv.getOutputParameter("employeeID");
+
+            // Display output
+            out.println("<html>");
+            out.println("<head>");
+            out.println("<title>Process Invocation Result</title>");
+            out.println("</head>");
+            out.println("<body>");
+            out.println("<h2>The Output value " + outPut + "</h2>");
+            out.println("</body>");
+            out.println("</html>");
+
+        } catch (DSCException ex) {
+            Logger.getLogger(JavaServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            out.close();
+        }
+    }
+}
+```
+
+## Explanation of the Code
+
+The code performs these key operations:
+
+1. **Sets Connection Properties**: Configures the connection to the LiveCycle server, including server URL, protocol, server type, and credentials.
+
+2. **Creates Parameter Map**: Prepares the input parameters to be passed to the LiveCycle process.
+
+3. **Establishes Connection**: Creates a service client to communicate with LiveCycle.
+
+4. **Creates Invocation Request**: Specifies which process to invoke ("TimeSheets/getEmployeeID"), which operation to call ("invoke"), and passes the parameters.
+
+5. **Invokes the Process**: Calls the process and waits for a response.
+
+6. **Processes the Response**: Extracts the output parameter from the response and displays it to the user.
+
+## Security Considerations
+
+When implementing this in a production environment, consider these security best practices:
+
+1. Store credentials securely, not hardcoded in the servlet
+2. Use HTTPS for the LiveCycle server endpoint
+3. Implement proper error handling and logging
+4. Validate all user inputs before passing to LiveCycle
+5. Consider using application server security mechanisms
+
+## Conclusion
+
+By following this tutorial, you can successfully invoke LiveCycle orchestration processes from Java servlets, enabling integration between your web applications and Adobe LiveCycle workflows. This approach allows you to leverage the powerful document processing capabilities of LiveCycle while maintaining the flexibility of Java web applications. 

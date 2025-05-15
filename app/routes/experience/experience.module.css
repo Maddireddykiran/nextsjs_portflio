@@ -1,0 +1,385 @@
+.experience {
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  padding-top: var(--space4XL);
+  overflow: hidden;
+  
+  @media (--mediaMobile) {
+    padding-top: var(--space5XL);
+  }
+}
+
+.content {
+  width: 100%;
+  max-width: var(--maxWidthXL);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space2XL);
+  margin: 0 auto;
+  padding: 0 var(--spaceL);
+  
+  @media (--mediaTablet) {
+    max-width: 90%;
+  }
+}
+
+.heading {
+  margin-bottom: var(--spaceL);
+  
+  @media (--mediaLaptop) {
+    margin-bottom: var(--spaceM);
+  }
+  
+  @media (--mediaMobile) {
+    margin-bottom: var(--spaceS);
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fontSizeH1);
+  font-weight: var(--fontWeightMedium);
+  text-transform: uppercase;
+  color: var(--textTitle);
+  letter-spacing: -0.05em;
+  transition-property: transform, opacity;
+  transition-timing-function: var(--bezierFastoutSlowin);
+  transition-duration: var(--durationXL);
+  transform: translate3d(0, var(--space5XL), 0);
+  opacity: 0;
+
+  @media (--mediaTablet) {
+    font-size: var(--fontSizeH2);
+  }
+
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeH3);
+  }
+
+  &[data-visible='true'] {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes jobReveal {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translate3d(0, var(--spaceL), 0);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes smokeEffect {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-20px) scaleX(1.5);
+    opacity: 0;
+  }
+}
+
+.jobList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space2XL);
+  max-width: var(--maxWidthL);
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  
+  @media (--mediaTablet) {
+    gap: var(--space2XL);
+  }
+  
+  @media (--mediaMobile) {
+    gap: var(--spaceXL);
+  }
+}
+
+.linePattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--zIndex0);
+  opacity: 0.1;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(to right, color-mix(in lab, var(--accent) 30%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in lab, var(--accent) 30%, transparent) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+@keyframes lineMove {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 50px 50px;
+  }
+}
+
+.animatedLines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--zIndex0);
+  opacity: 0.05;
+  pointer-events: none;
+  background-image: 
+    linear-gradient(45deg, color-mix(in lab, var(--accent) 40%, transparent) 1px, transparent 1px),
+    linear-gradient(-45deg, color-mix(in lab, var(--accent) 40%, transparent) 1px, transparent 1px);
+  background-size: 100px 100px;
+  animation: lineMove 20s linear infinite;
+}
+
+.job {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  padding: var(--spaceL);
+  opacity: 0;
+  transition: transform 0.4s var(--bezierFastoutSlowin), box-shadow 0.4s var(--bezierFastoutSlowin);
+  
+  &[data-visible='true'] {
+    animation: jobReveal 0.8s var(--bezierFastoutSlowin) forwards;
+    animation-delay: calc(var(--delay) * 1s);
+  }
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      150deg,
+      color-mix(in lab, var(--text) 7%, transparent) 0%,
+      color-mix(in lab, var(--text) 5%, transparent) 100%
+    );
+    border-radius: 16px;
+    z-index: var(--zIndex0);
+    transition: 0.4s var(--bezierFastoutSlowin);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 17px;
+    padding: 1px;
+    background: linear-gradient(
+      150deg,
+      color-mix(in lab, var(--text) 20%, transparent) 0%,
+      color-mix(in lab, var(--accent) 10%, transparent) 100%
+    );
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: var(--zIndex1);
+    opacity: 0;
+    transition: 0.4s var(--bezierFastoutSlowin);
+  }
+  
+  .smokeEffect {
+    display: none;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    width: 30px;
+    height: 40px;
+    background: color-mix(in lab, var(--accent) 30%, transparent);
+    filter: blur(20px);
+    border-radius: 50%;
+    transform-origin: bottom;
+    z-index: var(--zIndex0);
+    pointer-events: none;
+  }
+  
+  .job .smokeEffect:nth-child(2),
+  .job .smokeEffect:nth-child(3),
+  .job .smokeEffect:nth-child(4),
+  .job .smokeEffect:nth-child(5) {
+    display: none;
+  }
+  
+  .job:hover .smokeEffect, .job[data-highlighted='true'] .smokeEffect {
+    display: block;
+    animation: smokeEffect 1.5s ease-out infinite;
+  }
+  
+  &:hover, &[data-highlighted='true'] {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    
+    &::before {
+      background: linear-gradient(
+        150deg,
+        color-mix(in lab, var(--text) 10%, transparent) 0%,
+        color-mix(in lab, var(--text) 8%, transparent) 100%
+      );
+    }
+    
+    &::after {
+      opacity: 1;
+    }
+    
+    & .jobTitle {
+      color: var(--accent);
+    }
+  }
+  
+  @media (--mediaTablet) {
+    padding: var(--spaceM);
+  }
+}
+
+.jobContent {
+  position: relative;
+  z-index: var(--zIndex1);
+  display: grid;
+  grid-template-columns: 1fr;
+  
+  @media (--mediaTablet) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.jobDetails {
+  display: flex;
+  flex-direction: column;
+}
+
+.jobTitle {
+  font-size: var(--fontSizeH4);
+  font-weight: var(--fontWeightMedium);
+  color: var(--textTitle);
+  margin: 0 0 var(--spaceM);
+  transition: color 0.3s ease;
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeH5);
+  }
+}
+
+.jobCompany {
+  font-size: var(--fontSizeBodyL);
+  color: var(--accent);
+  margin: 0 0 var(--spaceS);
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyM);
+  }
+}
+
+.jobLocation {
+  font-size: var(--fontSizeBodyS);
+  color: var(--textSecondary);
+  margin: 0 0 var(--spaceS);
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyXS);
+  }
+}
+
+.jobTimeframe {
+  font-size: var(--fontSizeBodyM);
+  color: var(--textLight);
+  margin: 0 0 var(--spaceL);
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyS);
+  }
+}
+
+.jobDescription {
+  font-size: var(--fontSizeBodyM);
+  color: var(--textBody);
+  line-height: var(--lineHeightBody);
+  margin: 0 0 var(--spaceL);
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyS);
+  }
+}
+
+.jobTech {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceS);
+}
+
+.techItem {
+  font-size: var(--fontSizeBodyXS);
+  color: var(--textLight);
+  background-color: color-mix(in lab, var(--text) 8%, transparent);
+  padding: var(--spaceXS) var(--spaceS);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    background-color: color-mix(in lab, var(--accent) 10%, transparent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        color-mix(in lab, var(--accent) 20%, transparent) 50%,
+        transparent 100%
+      );
+      animation: techItemGlow 1.5s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes techItemGlow {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.fallbackBackground {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+  opacity: 1;
+  background: linear-gradient(135deg, 
+    color-mix(in lab, var(--background) 95%, var(--accent) 5%) 0%,
+    var(--background) 100%);
+  z-index: 0;
+} 

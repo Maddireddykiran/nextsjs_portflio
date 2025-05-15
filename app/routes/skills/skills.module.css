@@ -1,0 +1,390 @@
+.skills {
+  height: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  padding-top: var(--space4XL);
+  overflow: hidden;
+  
+  @media (--mediaMobile) {
+    padding-top: var(--space5XL);
+  }
+}
+
+.content {
+  width: 100%;
+  max-width: var(--maxWidthXL);
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space2XL);
+  
+  @media (--mediaTablet) {
+    max-width: 90%;
+  }
+}
+
+.heading {
+  margin-bottom: var(--spaceL);
+  
+  @media (--mediaLaptop) {
+    margin-bottom: var(--spaceM);
+  }
+  
+  @media (--mediaMobile) {
+    margin-bottom: var(--spaceS);
+  }
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fontSizeH1);
+  font-weight: var(--fontWeightMedium);
+  text-transform: uppercase;
+  color: var(--textTitle);
+  letter-spacing: -0.05em;
+  transition-property: transform, opacity;
+  transition-timing-function: var(--bezierFastoutSlowin);
+  transition-duration: var(--durationXL);
+  transform: translate3d(0, var(--space5XL), 0);
+  opacity: 0;
+
+  @media (--mediaTablet) {
+    font-size: var(--fontSizeH2);
+  }
+
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeH3);
+  }
+
+  &[data-visible='true'] {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Category styles */
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spaceM);
+  margin-bottom: var(--spaceXL);
+  position: relative;
+  z-index: var(--zIndex1);
+  
+  @media (--mediaMobile) {
+    gap: var(--spaceS);
+    margin-bottom: var(--spaceL);
+  }
+}
+
+@keyframes categoryReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.categoryButton {
+  background: none;
+  border: 1px solid color-mix(in lab, var(--text) 20%, transparent);
+  padding: var(--spaceXS) var(--spaceM);
+  border-radius: 20px;
+  color: var(--textLight);
+  font-size: var(--fontSizeBodyS);
+  cursor: pointer;
+  transition: all 0.3s var(--bezierFastoutSlowin);
+  opacity: 0;
+  animation: categoryReveal 0.6s var(--bezierFastoutSlowin) forwards;
+  
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  
+  &:nth-child(4) {
+    animation-delay: 0.3s;
+  }
+  
+  &:nth-child(5) {
+    animation-delay: 0.4s;
+  }
+  
+  &:nth-child(6) {
+    animation-delay: 0.5s;
+  }
+  
+  &:nth-child(7) {
+    animation-delay: 0.6s;
+  }
+  
+  &:nth-child(8) {
+    animation-delay: 0.7s;
+  }
+  
+  &:hover {
+    background-color: color-mix(in lab, var(--text) 8%, transparent);
+    color: var(--accent);
+    border-color: color-mix(in lab, var(--text) 30%, transparent);
+  }
+  
+  &[data-selected='true'] {
+    background-color: color-mix(in lab, var(--accent) 8%, transparent);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyXS);
+    padding: var(--spaceXXS) var(--spaceS);
+  }
+}
+
+/* Skills grid container */
+.skillsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--spaceL);
+  width: 100%;
+  padding: 0;
+  position: relative;
+  
+  @media (--mediaTablet) {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--spaceM);
+  }
+  
+  @media (--mediaMobile) {
+    grid-template-columns: 1fr;
+    gap: var(--spaceM);
+  }
+}
+
+/* Skill item styles */
+@keyframes skillReveal {
+  0% {
+    opacity: 0;
+    filter: blur(10px);
+    transform: translate3d(0, var(--spaceL), 0);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.skillItem {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  height: 160px;
+  opacity: 0;
+  transition-property: transform, opacity, box-shadow;
+  transition-duration: 0.4s;
+  transition-timing-function: var(--bezierFastoutSlowin);
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      150deg,
+      color-mix(in lab, var(--text) 7%, transparent) 0%,
+      color-mix(in lab, var(--text) 5%, transparent) 100%
+    );
+    border-radius: 16px;
+    z-index: var(--zIndex0);
+    transition: 0.4s var(--bezierFastoutSlowin);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 17px;
+    padding: 1px;
+    background: linear-gradient(
+      150deg,
+      color-mix(in lab, var(--text) 20%, transparent) 0%,
+      color-mix(in lab, var(--accent) 10%, transparent) 100%
+    );
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    z-index: var(--zIndex1);
+    opacity: 0;
+    transition: 0.4s var(--bezierFastoutSlowin);
+  }
+  
+  &[data-visible='true'] {
+    animation: skillReveal 0.8s var(--bezierFastoutSlowin) forwards;
+    animation-delay: calc(var(--delay) * 1s);
+  }
+  
+  &:hover, &[data-highlighted='true'] {
+    transform: translateY(-4px);
+    
+    &::before {
+      background: linear-gradient(
+        150deg,
+        color-mix(in lab, var(--text) 10%, transparent) 0%,
+        color-mix(in lab, var(--text) 8%, transparent) 100%
+      );
+    }
+    
+    &::after {
+      opacity: 1;
+    }
+    
+    & .skillName {
+      color: var(--accent);
+    }
+  }
+  
+  @media (--mediaMobile) {
+    height: auto;
+    min-height: 120px;
+  }
+}
+
+.skillContent {
+  position: relative;
+  z-index: var(--zIndex1);
+  padding: var(--spaceL);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skillName {
+  font-size: var(--fontSizeBodyL);
+  font-weight: var(--fontWeightMedium);
+  color: var(--textTitle);
+  margin: 0 0 var(--spaceS);
+  transition: color 0.3s ease;
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyM);
+  }
+}
+
+.skillCompany {
+  font-size: var(--fontSizeBodyXS);
+  color: var(--textLight);
+  margin: 0;
+  flex-grow: 1;
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyXS);
+    margin-bottom: var(--spaceS);
+  }
+}
+
+.skillEndorsements {
+  font-size: var(--fontSizeBodyXS);
+  color: var(--accent);
+  margin: 0 0 var(--spaceM);
+  flex-grow: 1;
+  
+  @media (--mediaMobile) {
+    font-size: var(--fontSizeBodyXS);
+    margin-bottom: var(--spaceS);
+  }
+}
+
+@keyframes smokeEffect {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(-20px) scaleX(1.5);
+    opacity: 0;
+  }
+}
+
+.endorseButton {
+  position: relative;
+  align-self: flex-start;
+  font-size: var(--fontSizeBodyXS);
+  font-weight: var(--fontWeightMedium);
+  background: none;
+  border: none;
+  color: var(--accent);
+  cursor: pointer;
+  padding: var(--spaceXS) var(--spaceM);
+  border-radius: 20px;
+  transform: translateY(10px);
+  opacity: 0;
+  transition: all 0.3s var(--bezierFastoutSlowin);
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 20px;
+    background: color-mix(in lab, var(--accent) 10%, transparent);
+    z-index: var(--zIndex0);
+    transition: background 0.3s ease;
+  }
+  
+  &:hover {
+    &::before {
+      background: color-mix(in lab, var(--accent) 20%, transparent);
+    }
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 30px;
+      height: 40px;
+      background: color-mix(in lab, var(--accent) 30%, transparent);
+      filter: blur(20px);
+      border-radius: 50%;
+      transform-origin: bottom;
+      animation: smokeEffect 1.5s ease-out;
+      z-index: var(--zIndex0);
+    }
+  }
+  
+  & .endorseText {
+    position: relative;
+    z-index: var(--zIndex1);
+  }
+  
+  @media (--mediaMobile) {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.fallbackBackground {
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  inset: 0;
+  opacity: 1;
+  background: radial-gradient(circle at top right, 
+    color-mix(in lab, var(--accent) 20%, transparent),
+    color-mix(in lab, var(--accent) 5%, transparent) 40%,
+    transparent 60%);
+  z-index: 0;
+} 
