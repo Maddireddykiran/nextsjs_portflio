@@ -16,7 +16,7 @@ A modern, responsive portfolio website built with [Remix](https://remix.run/), [
 - Three.js for 3D/WebGL effects
 - Framer Motion for animations
 - CSS Modules for styling
-- Vercel for deployment
+- Vercel/Netlify for deployment
 
 ## Installation & Development
 
@@ -41,6 +41,23 @@ npm run dev:storybook
 ```
 
 ## Deployment
+
+### Deploying to Netlify
+
+The project is configured for easy deployment to Netlify. See the [NETLIFY-DEPLOY.md](./NETLIFY-DEPLOY.md) file for detailed instructions.
+
+Quick deployment:
+
+```bash
+# Install Netlify CLI
+npm install -g netlify-cli
+
+# Login to Netlify
+netlify login
+
+# Deploy to Netlify
+netlify deploy --prod
+```
 
 ### Deploying to Vercel
 
