@@ -16,7 +16,7 @@
     "build:storybook": "storybook build",
     "deploy:storybook": "wrangler pages deploy ./storybook-static --project-name portfolio-storybook --branch main",
     "vercel-build": "node ./scripts/vercel-build.cjs",
-    "netlify-build": "CI=false npm run build"
+    "netlify-build": "node ./scripts/netlify-build.js"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",

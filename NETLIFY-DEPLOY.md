@@ -9,7 +9,7 @@ This guide covers the steps to deploy your portfolio to Netlify and troubleshoot
 
 ## Deployment Steps
 
-### Method 1: Deploy via Netlify UI
+### Method 1: Deploy via Netlify UI (Recommended)
 
 1. Log in to your Netlify account
 2. Click "Add new site" → "Import an existing project"
@@ -17,6 +17,7 @@ This guide covers the steps to deploy your portfolio to Netlify and troubleshoot
 4. Configure build settings:
    - **Build command**: `npm run netlify-build`
    - **Publish directory**: `build/client`
+   - Add environment variable: `CI = false` 
 5. Click "Deploy site"
 
 ### Method 2: Deploy via Netlify CLI
@@ -42,25 +43,42 @@ This guide covers the steps to deploy your portfolio to Netlify and troubleshoot
    netlify deploy --prod
    ```
 
-## Troubleshooting 404 Errors
+## Fixing 404 Errors
 
 If you encounter 404 errors when navigating to pages on your deployed site:
 
-1. **Check your redirects**: This repository includes a `netlify.toml` file and a `_redirects` file in the `public` directory. These should handle redirecting all routes to `index.html` for client-side routing.
+### Solution 1: Redeploy with the netlify-build Script
 
-2. **Verify build directory**: Make sure Netlify is publishing from the correct directory (`build/client`).
+Our custom `netlify-build` script creates necessary redirect files in the build output:
 
-3. **Force deployment**: Sometimes you need to force a new deployment:
+1. Go to your site's Netlify dashboard
+2. Navigate to Site settings → Build & deploy → Build settings
+3. Change the build command to: `npm run netlify-build` 
+4. Add an environment variable named `CI` with value `false`
+5. Trigger a new deploy
+
+### Solution 2: Manual File Creation
+
+If you're still seeing 404 errors, try these steps:
+
+1. Build your site locally: `npm run build`
+2. Create a file named `_redirects` in the `build/client` directory with content:
+   ```
+   /*  /index.html  200
+   ```
+3. Deploy using the Netlify CLI:
    ```bash
-   netlify deploy --prod --force
+   netlify deploy --prod --dir=build/client
    ```
 
-4. **Clear cache**: Try clearing the Netlify cache:
-   ```bash
-   netlify deploy --prod --clear
-   ```
+### Solution 3: Try Direct Upload
 
-5. **Check build logs**: Review the build logs in the Netlify dashboard for any errors.
+Sometimes bypassing Git-based deployment helps:
+
+1. Build locally: `npm run build`
+2. Go to Netlify dashboard → Sites
+3. Drag and drop the `build/client` folder directly onto the Netlify UI
+4. This creates a new site with the correct files
 
 ## Environment Variables
 
@@ -78,6 +96,15 @@ To use a custom domain:
 2. Navigate to Site settings → Domain management
 3. Click "Add custom domain"
 4. Follow the instructions to configure DNS
+
+## Troubleshooting More Issues
+
+If you're still having problems:
+
+1. **Check for build errors**: Review the build logs in Netlify dashboard
+2. **Verify redirects are working**: Go to Site settings → Build & deploy → Post processing → Asset optimization
+3. **Try disabling asset optimization**: Sometimes this can interfere with routing
+4. **Contact Netlify support**: They can help with more complex issues
 
 ## Continuous Deployment
 
