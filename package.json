@@ -18,6 +18,7 @@
     "vercel-build": "node ./scripts/vercel-build.cjs",
     "netlify-build": "node ./scripts/netlify-build.js",
     "netlify-build:cjs": "node ./scripts/netlify-build.cjs",
+    "netlify-minimal": "node ./scripts/deploy-minimal.cjs",
     "cleanup-deps": "node ./scripts/cleanup-deps.cjs",
     "generate:patch": "node ./scripts/create-patches.js",
     "netlify-prebuild": "node ./scripts/cleanup-deps.cjs && npm install --force --no-audit --no-fund"
