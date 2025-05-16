@@ -1,5 +1,5 @@
 [build]
-  command = "npm install --force --legacy-peer-deps && npm install --no-save @remix-run/dev vite @remix-run/react && npm run netlify-force-build"
+  command = "npm run netlify-preinit && npm install --force --legacy-peer-deps && npm install --no-save fs-extra @remix-run/dev vite @remix-run/react && npm run netlify-force-build"
   publish = "build/client"
   ignore_errors = false
   

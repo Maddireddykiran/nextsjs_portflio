@@ -7,6 +7,19 @@ const { execSync } = require('child_process');
 
 console.log('Starting minimal Netlify build process');
 
+// Try to install fs-extra if it doesn't exist
+try {
+  require('fs-extra');
+  console.log('fs-extra is already installed');
+} catch (error) {
+  console.log('Installing fs-extra...');
+  try {
+    execSync('npm install --no-save fs-extra', { stdio: 'inherit' });
+  } catch (installError) {
+    console.error('Failed to install fs-extra, continuing with built-in fs:', installError.message);
+  }
+}
+
 // Make sure we have the essential dependencies
 try {
   console.log('Installing essential dependencies...');
