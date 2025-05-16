@@ -47,32 +47,14 @@ function ensureBuildDir() {
     fs.mkdirSync(clientPath, { recursive: true });
   }
   
-  // Create a basic index.html if it doesn't exist
+  // Check if index.html already exists - if it does, we don't need to create a fallback
   const indexPath = path.join(clientPath, 'index.html');
   if (!fs.existsSync(indexPath)) {
-    // Try to copy the fallback HTML file if it exists
-    const fallbackPath = path.join(process.cwd(), 'fallback.html');
-    if (fs.existsSync(fallbackPath)) {
-      fs.copyFileSync(fallbackPath, indexPath);
-      console.log('Copied fallback.html to build/client/index.html');
-    } else {
-      // Use simple HTML if the fallback file doesn't exist
-      fs.writeFileSync(indexPath, `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Portfolio</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
-<body>
-  <h1>Website under construction</h1>
-  <p>We're working on bringing the site up. Please check back later.</p>
-</body>
-</html>
-`);
-    }
+    console.error('WARNING: No index.html found in build/client directory. Build may have failed!');
+    return false;
   }
+  
+  return true;
 }
 
 // Create mise configuration
@@ -211,7 +193,7 @@ audit=false
     CI: 'false'
   });
   
-  // Run the build command with increased memory - ignore errors
+  // Run the build command with increased memory - exit with error on failure
   console.log('Building Remix application...');
   const buildResult = runCommandWithEnv('npx remix vite:build', {
     NODE_ENV: 'production',
@@ -221,8 +203,8 @@ audit=false
   });
   
   if (!buildResult) {
-    console.warn('Build command failed, but continuing with deployment...');
-    ensureBuildDir();
+    console.error('Build command failed. Deployment cannot continue.');
+    process.exit(1);
   }
   
   // Clean up patch directory
@@ -246,8 +228,11 @@ audit=false
   
   console.log('Build completed, creating redirect file...');
   
-  // Ensure the build/client directory exists
-  ensureBuildDir();
+  // Ensure the build/client directory exists and has an index.html
+  if (!ensureBuildDir()) {
+    console.error('No index.html was created during build. This is a critical error.');
+    process.exit(1);
+  }
   
   // Create a _redirects file in the build/client directory
   const redirectsContent = '/*  /index.html  200';
@@ -276,9 +261,6 @@ audit=false
   console.log('Build process completed successfully!');
   
 } catch (error) {
-  console.error('Error during build process, but we will continue anyway:', error);
-  ensureBuildDir();
-}
-
-// Always exit with success
-process.exit(0); 
+  console.error('Error during build process:', error);
+  process.exit(1);
+} 

@@ -22,6 +22,7 @@ export default defineConfig({
   build: {
     assetsInlineLimit: 1024,
     outDir: 'build/client',
+    emptyOutDir: true,
     rollupOptions: {
       // Explicitly mark React as external but include in the bundle
       external: [],

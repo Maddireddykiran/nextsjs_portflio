@@ -7,8 +7,8 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
-    "build": "remix vite:build",
-    "build:ci": "cross-env CI=false remix vite:build",
+    "build": "cross-env CI=false NODE_ENV=production remix vite:build",
+    "build:ci": "cross-env CI=false NODE_ENV=production remix vite:build",
     "dev": "node ./scripts/dev.cjs && remix vite:dev",
     "start": "wrangler pages dev ./build/client",
     "postinstall": "node ./scripts/draco.cjs",
@@ -18,11 +18,13 @@
     "deploy:storybook": "wrangler pages deploy ./storybook-static --project-name portfolio-storybook --branch main",
     "vercel-build": "node ./scripts/vercel-build.cjs",
     "netlify-build": "node ./scripts/netlify-build.js",
-    "netlify-build:cjs": "node ./scripts/netlify-build.cjs",
+    "netlify-build:cjs": "cross-env CI=false NODE_ENV=production node ./scripts/netlify-build.cjs",
     "netlify-minimal": "node ./scripts/deploy-minimal.cjs",
     "cleanup-deps": "node ./scripts/cleanup-deps.cjs",
     "generate:patch": "node ./scripts/create-patches.js",
-    "netlify-prebuild": "node ./scripts/cleanup-deps.cjs && npm install --force --no-audit --no-fund"
+    "netlify-prebuild": "node ./scripts/cleanup-deps.cjs && npm install --force --no-audit --no-fund",
+    "netlify-check": "node ./scripts/netlify-check.cjs",
+    "netlify-force-build": "node ./scripts/netlify-force-build.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",
