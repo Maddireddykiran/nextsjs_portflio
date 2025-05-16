@@ -25,6 +25,14 @@ try {
   console.error('Failed to clean dependencies:', error);
 }
 
+// Create a clean npmrc with specific settings needed for Netlify
+console.log('Creating .npmrc with specific settings...');
+fs.writeFileSync('.npmrc', `legacy-peer-deps=true
+auto-install-peers=true
+fund=false
+strict-peer-dependencies=false
+`);
+
 // Install dependencies with force
 console.log('Installing dependencies...');
 try {
@@ -34,22 +42,52 @@ try {
   process.exit(1);
 }
 
-// Run build with verbose logging
-console.log('Running build with verbose logging...');
+// Explicitly install critical build tools to ensure they're available
+console.log('Ensuring build tools are available...');
 try {
-  // Set environment variables for Windows compatibility
-  process.env.CI = 'false';
-  process.env.NODE_ENV = 'production';
-  process.env.NODE_OPTIONS = '--max-old-space-size=4096';
-  
-  execSync('npx remix vite:build', { 
-    stdio: 'inherit',
-    env: { ...process.env }
-  });
-  console.log('Build completed successfully!');
+  execSync('npm install --no-save @remix-run/dev vite @remix-run/react', { stdio: 'inherit' });
 } catch (error) {
-  console.error('Build failed with error:', error);
+  console.error('Failed to install build tools:', error);
   process.exit(1);
+}
+
+// Verify remix CLI is available
+const remixPath = path.join(process.cwd(), 'node_modules', '.bin', 'remix');
+if (!fs.existsSync(remixPath)) {
+  console.error('Remix CLI not found after installation! Creating direct build command...');
+  // Create a direct build script that bypasses remix CLI
+  try {
+    execSync('npx vite build', { 
+      stdio: 'inherit',
+      env: { 
+        ...process.env,
+        CI: 'false',
+        NODE_ENV: 'production',
+        NODE_OPTIONS: '--max-old-space-size=4096'
+      }
+    });
+  } catch (error) {
+    console.error('Fallback build command failed:', error);
+    process.exit(1);
+  }
+} else {
+  // Run build with verbose logging using direct path to remix executable
+  console.log('Running build with verbose logging...');
+  try {
+    // Set environment variables for Windows compatibility
+    process.env.CI = 'false';
+    process.env.NODE_ENV = 'production';
+    process.env.NODE_OPTIONS = '--max-old-space-size=4096';
+    
+    execSync(`"${remixPath}" vite:build`, { 
+      stdio: 'inherit',
+      env: { ...process.env }
+    });
+    console.log('Build completed successfully!');
+  } catch (error) {
+    console.error('Build failed with error:', error);
+    process.exit(1);
+  }
 }
 
 // Check build output

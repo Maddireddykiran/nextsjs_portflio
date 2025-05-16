@@ -24,7 +24,8 @@
     "generate:patch": "node ./scripts/create-patches.js",
     "netlify-prebuild": "node ./scripts/cleanup-deps.cjs && npm install --force --no-audit --no-fund",
     "netlify-check": "node ./scripts/netlify-check.cjs",
-    "netlify-force-build": "node ./scripts/netlify-force-build.cjs"
+    "netlify-force-build": "node ./scripts/netlify-force-build.cjs || node ./scripts/minimal-build.cjs",
+    "minimal-build": "node ./scripts/minimal-build.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",

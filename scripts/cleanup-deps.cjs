@@ -7,25 +7,38 @@ const { execSync } = require('child_process');
 
 console.log('Cleaning up dependency files...');
 
+// Check if we're in a CI environment
+const isCI = process.env.CI === 'true' || process.env.NETLIFY === 'true';
+
 // Remove package-lock.json if it exists
 if (fs.existsSync('package-lock.json')) {
   console.log('Removing package-lock.json');
   fs.unlinkSync('package-lock.json');
 }
 
-// Remove node_modules if it exists
+// In CI, be more careful with node_modules
 if (fs.existsSync('node_modules')) {
-  console.log('Removing node_modules directory');
-  try {
-    if (process.platform === 'win32') {
-      // On Windows, use rimraf or similar
-      execSync('rmdir /s /q node_modules', { stdio: 'inherit' });
-    } else {
-      // On Unix systems
-      execSync('rm -rf node_modules', { stdio: 'inherit' });
+  if (isCI) {
+    console.log('In CI environment - preserving node_modules but cleaning cache');
+    // Just clear npm cache instead of removing node_modules
+    try {
+      execSync('npm cache clean --force', { stdio: 'inherit' });
+    } catch (error) {
+      console.warn('Warning: Could not clean npm cache:', error.message);
     }
-  } catch (error) {
-    console.warn('Warning: Could not completely remove node_modules:', error.message);
+  } else {
+    console.log('Removing node_modules directory');
+    try {
+      if (process.platform === 'win32') {
+        // On Windows, use rimraf or similar
+        execSync('rmdir /s /q node_modules', { stdio: 'inherit' });
+      } else {
+        // On Unix systems
+        execSync('rm -rf node_modules', { stdio: 'inherit' });
+      }
+    } catch (error) {
+      console.warn('Warning: Could not completely remove node_modules:', error.message);
+    }
   }
 }
 
@@ -35,7 +48,7 @@ const npmrcContent = `legacy-peer-deps=true
 auto-install-peers=true
 fund=false
 strict-peer-dependencies=false
-ignore-scripts=true
+ignore-scripts=false
 update-notifier=false
 `;
 
