@@ -1,0 +1,5 @@
+--install-strategy=shallow
+--legacy-peer-deps
+--no-audit
+--no-fund
+--no-package-lock 

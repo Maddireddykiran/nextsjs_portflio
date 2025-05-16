@@ -52,13 +52,28 @@ You can set up automatic deployments from GitHub to Cloudflare Pages:
 4. Click "Create a project"
 5. Connect your GitHub account and select your repository
 6. Configure your build settings:
-   - Build command: `npm run cloudflare-build`
+   - Build command: `./build.sh`
    - Build output directory: `build/client`
    - Node.js version: 20.x
-   - Environment variables: Set `NODE_VERSION` to `20.10.0` (optional)
+   - Environment variables: 
+     - `NODE_VERSION`: `20.10.0`
+     - `CI`: `false`
+     - `NPM_FLAGS`: `--legacy-peer-deps --no-fund --no-audit`
 7. Click "Save and Deploy"
 
-> **Important**: This project includes a custom build script (`cloudflare-build`) that handles dependency installation properly, preventing common errors with package-lock.json.
+> **Important**: We use a custom build script (`build.sh`) to avoid the npm ci error that occurs with fs-extra version conflicts.
+
+## Troubleshooting npm ci Errors
+
+If you see errors related to `npm ci` and fs-extra version conflicts, the most reliable fix is to:
+
+1. In the Cloudflare Pages dashboard, go to your project's settings
+2. Under "Build settings", change the build command to `./build.sh`
+3. This script will:
+   - Remove the package-lock.json (preventing npm ci errors)
+   - Use npm install with the --legacy-peer-deps flag
+   - Explicitly install fs-extra@11.2.0
+   - Run the build process
 
 ## Environment Variables
 
@@ -70,8 +85,8 @@ If your application requires environment variables, you can configure them in th
 
 ## Troubleshooting
 
-- **Build failures**: Check that you're using Node.js 20.x or later
-- **Package lock issues**: Our custom `cloudflare-build` script should handle these automatically
+- **Build failures**: Check build logs for specific error messages
+- **Package lock issues**: Our custom build script should handle these automatically
 - **Runtime errors**: Check for missing environment variables or compatibility issues
 - **Route issues**: Ensure your Remix routes are properly configured
 
