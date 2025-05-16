@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://portfolio-landing-axk.pages.dev/sitemap.xml 

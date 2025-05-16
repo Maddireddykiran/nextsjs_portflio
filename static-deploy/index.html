@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio Deployment</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #212529;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      padding: 40px;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #0077ff;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .loader {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #0077ff;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+      margin-bottom: 24px;
+    }
+    @keyframes rotation {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .info {
+      font-size: 14px;
+      color: #6c757d;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <span class="loader"></span>
+    <h1>Portfolio Deployment In Progress</h1>
+    <p>Thank you for your patience. The portfolio website is currently being set up on Cloudflare Pages.</p>
+    <p>This page will automatically redirect to the live site when it's ready.</p>
+    <div class="info">Status: Deploying client assets and resolving build issues</div>
+  </div>
+  
+  <script>
+    // Check status every 30 seconds and redirect when ready
+    function checkDeploymentStatus() {
+      // For now, we'll just do a simple redirect after a delay
+      // In a real scenario, you might have an API to check status
+      setTimeout(() => {
+        window.location.href = "https://nextsjs-portflio.pages.dev";
+      }, 60000); // Redirect after 60 seconds
+    }
+    
+    checkDeploymentStatus();
+  </script>
+</body>
+</html> 

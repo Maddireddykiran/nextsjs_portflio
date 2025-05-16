@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portfolio</title>
+  <style>
+    :root {
+      --color-background: #0e0e10;
+      --color-surface: #161618;
+      --color-primary: #007bff;
+      --color-primary-hover: #0069d9;
+      --color-text: #f8f9fa;
+      --color-text-secondary: #a0a0a6;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-sans);
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.6;
+    }
+    
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      background: linear-gradient(135deg, rgba(14,14,16,1) 0%, rgba(22,22,24,1) 100%);
+      background-size: 200% 200%;
+      animation: gradientBG 15s ease infinite;
+    }
+    
+    .container {
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 0.8s var(--ease-out-expo) forwards;
+    }
+    
+    .card {
+      background-color: var(--color-surface);
+      border-radius: 8px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    h1 {
+      font-size: 42px;
+      margin-bottom: 16px;
+      background: linear-gradient(90deg, #007bff, #00bcd4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+    }
+    
+    p {
+      margin-bottom: 24px;
+      color: var(--color-text-secondary);
+      font-size: 18px;
+    }
+    
+    .btn {
+      display: inline-block;
+      background-color: var(--color-primary);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      margin: 8px;
+    }
+    
+    .btn:hover {
+      background-color: var(--color-primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 7px 14px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .footer {
+      margin-top: 48px;
+      font-size: 14px;
+      color: var(--color-text-secondary);
+    }
+    
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 32px;
+      }
+      
+      p {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Personal Portfolio</h1>
+      <p>Thank you for visiting my portfolio. I'm currently working on deploying the full interactive version.</p>
+      <p>The portfolio showcases my projects, skills, and experience with beautiful 3D animations and a modern design.</p>
+      <a href="https://github.com/yourusername" class="btn">View My GitHub</a>
+      <a href="mailto:your.email@example.com" class="btn">Contact Me</a>
+    </div>
+    <div class="footer">
+      &copy; 2025 · Built with Remix and Cloudflare Pages
+    </div>
+  </div>
+</body>
+</html> 
