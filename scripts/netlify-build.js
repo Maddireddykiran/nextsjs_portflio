@@ -9,13 +9,30 @@ const path = require('path');
 process.env.CI = 'false';
 
 try {
-  // Ensure React dependencies are installed
-  console.log('Checking dependencies...');
-  execSync('npm ls react', { stdio: 'inherit' });
+  // Ensure all dependencies are installed properly
+  console.log('Checking and installing dependencies...');
   
-  // Run the build command
+  // Force install of necessary peer dependencies
+  console.log('Installing React JSX Runtime dependencies...');
+  execSync('npm install --no-save react@18.2.0 react-dom@18.2.0', { stdio: 'inherit' });
+  
+  // Create a temporary .npmrc file to force legacy peer deps
+  fs.writeFileSync('.npmrc.temp', 'legacy-peer-deps=true\n');
+  
+  // Run the build command with the temporary .npmrc
   console.log('Building Remix application...');
-  execSync('NODE_ENV=production remix vite:build', { stdio: 'inherit' });
+  execSync('NODE_ENV=production remix vite:build', { 
+    stdio: 'inherit',
+    env: { 
+      ...process.env,
+      NODE_OPTIONS: '--max-old-space-size=4096'
+    }
+  });
+  
+  // Remove temporary .npmrc file
+  if (fs.existsSync('.npmrc.temp')) {
+    fs.unlinkSync('.npmrc.temp');
+  }
   
   console.log('Build completed, creating redirect file...');
   

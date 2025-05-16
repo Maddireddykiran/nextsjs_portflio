@@ -10,13 +10,19 @@ import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import rehypeImgSize from 'rehype-img-size';
 import rehypeSlug from 'rehype-slug';
 import rehypePrism from '@mapbox/rehype-prism';
+import path from 'path';
 
 export default defineConfig({
   assetsInclude: ['**/*.glb', '**/*.hdr', '**/*.glsl'],
   build: {
     assetsInlineLimit: 1024,
     rollupOptions: {
-      external: ['react/jsx-runtime'],
+      external: [],
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react/jsx-runtime']
+        }
+      }
     }
   },
   server: {
@@ -24,8 +30,14 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'react/jsx-runtime': 'react/jsx-runtime.js'
+      'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
+      'react/jsx-dev-runtime': path.resolve(__dirname, 'node_modules/react/jsx-dev-runtime.js'),
+      'react': path.resolve(__dirname, 'node_modules/react/index.js'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom/index.js')
     }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom', 'react/jsx-runtime']
   },
   plugins: [
     mdx({
