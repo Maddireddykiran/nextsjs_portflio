@@ -17,7 +17,9 @@
     "build:storybook": "storybook build",
     "deploy:storybook": "wrangler pages deploy ./storybook-static --project-name portfolio-storybook --branch main",
     "cleanup-deps": "node ./scripts/cleanup-deps.cjs",
-    "generate:patch": "node ./scripts/create-patches.js"
+    "generate:patch": "node ./scripts/create-patches.js",
+    "cloudflare-build": "node ./scripts/cloudflare-build.cjs",
+    "fix-fs-extra": "node ./scripts/fix-fs-extra.cjs"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",
