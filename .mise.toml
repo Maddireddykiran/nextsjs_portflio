@@ -1,0 +1,6 @@
+# Disable idiomatic version files to avoid mise warnings
+idiomatic_version_files = false
+
+# Set the Node.js version explicitly
+[tools]
+node = "20.10.0" 

@@ -5,6 +5,9 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Handle mise warnings by setting environment variable
+process.env.MISE_DISABLE_IDIOMATIC_VERSION_FILES = '1';
+
 // Check Node.js version
 const nodeVersion = process.version;
 console.log(`Using Node.js version: ${nodeVersion}`);
@@ -19,6 +22,11 @@ if (parseInt(nodeVersion.substring(1).split('.')[0], 10) < requiredNodeMajor) {
 
 // Ensure environment variables are set
 process.env.CI = 'false';
+process.env.NODE_ENV = 'production';
+
+// Create an .nvmrc file which is more standard than .node-version
+console.log('Creating .nvmrc file to ensure correct Node.js version...');
+fs.writeFileSync('.nvmrc', '20.10.0\n');
 
 try {
   // Create a special build patch file for Remix
@@ -63,6 +71,9 @@ module.exports.Fragment = React.Fragment;
     }
   }
   
+  // Make file to explicitly disable mise idiomatic version files
+  fs.writeFileSync('.mise.toml', 'idiomatic_version_files = false\n');
+  
   // Force install of necessary dependencies
   console.log('Installing required dependencies...');
   execSync('npm install --no-save react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1', { stdio: 'inherit' });
@@ -77,7 +88,8 @@ module.exports.Fragment = React.Fragment;
     stdio: 'inherit',
     env: { 
       ...process.env,
-      NETLIFY_PATCH_DIR: patchDir
+      NETLIFY_PATCH_DIR: patchDir,
+      MISE_DISABLE_IDIOMATIC_VERSION_FILES: '1'
     }
   });
   
