@@ -1,5 +1,5 @@
 [build]
-  command = "npm run netlify-prebuild || true && (CI=false npm run netlify-build:cjs || npm run netlify-minimal)"
+  command = "node ./scripts/netlify-build.cjs"
   publish = "build/client"
   ignore_errors = true
 

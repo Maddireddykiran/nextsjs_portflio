@@ -5,10 +5,27 @@ const { execSync, spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Helper function to run commands but always continue
-function runCommand(command) {
+// Helper function to run commands with environment variables in a cross-platform way
+function runCommandWithEnv(command, env) {
   try {
-    execSync(command, { stdio: 'inherit' });
+    // For Windows, we need to set environment variables differently
+    if (process.platform === 'win32') {
+      // Create a command that sets env vars for Windows cmd
+      let cmdWithEnv = '';
+      for (const [key, value] of Object.entries({ ...process.env, ...env })) {
+        if (key && value) {
+          cmdWithEnv += `set ${key}=${value} && `;
+        }
+      }
+      cmdWithEnv += command;
+      execSync(cmdWithEnv, { stdio: 'inherit' });
+    } else {
+      // For Unix systems, we can use the env option of execSync
+      execSync(command, { 
+        stdio: 'inherit',
+        env: { ...process.env, ...env }
+      });
+    }
     return true;
   } catch (error) {
     console.warn(`Command failed but continuing: ${command}`);
@@ -142,20 +159,35 @@ audit=false
   try {
     // First, try to use npm ci with legacy peer deps
     console.log('Attempting npm ci with legacy peer deps...');
-    runCommand('npm ci --legacy-peer-deps --no-audit --no-fund');
+    runCommandWithEnv('npm ci --legacy-peer-deps --no-audit --no-fund', {
+      NODE_ENV: 'production',
+      NODE_OPTIONS: '--max-old-space-size=4096',
+      NETLIFY_PATCH_DIR: patchDir,
+      CI: 'false'
+    });
   } catch (installError) {
     console.warn('npm ci failed, falling back to npm install:', installError.message);
     
     try {
       // Then try regular npm install with legacy peer deps
       console.log('Attempting npm install with legacy peer deps...');
-      runCommand('npm install --legacy-peer-deps --no-audit --no-fund');
+      runCommandWithEnv('npm install --legacy-peer-deps --no-audit --no-fund', {
+        NODE_ENV: 'production',
+        NODE_OPTIONS: '--max-old-space-size=4096',
+        NETLIFY_PATCH_DIR: patchDir,
+        CI: 'false'
+      });
     } catch (regularInstallError) {
       console.warn('Regular npm install failed, trying with force:', regularInstallError.message);
       
       // Last resort: force install
       console.log('Attempting forced npm install...');
-      runCommand('npm install --force --no-audit --no-fund');
+      runCommandWithEnv('npm install --force --no-audit --no-fund', {
+        NODE_ENV: 'production',
+        NODE_OPTIONS: '--max-old-space-size=4096',
+        NETLIFY_PATCH_DIR: patchDir,
+        CI: 'false'
+      });
     }
   }
   
@@ -172,11 +204,21 @@ audit=false
   
   // Force install of necessary dependencies specifically
   console.log('Installing critical dependencies...');
-  runCommand('npm install --no-save --force react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1');
+  runCommandWithEnv('npm install --no-save --force react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1', {
+    NODE_ENV: 'production',
+    NODE_OPTIONS: '--max-old-space-size=4096',
+    NETLIFY_PATCH_DIR: patchDir,
+    CI: 'false'
+  });
   
   // Run the build command with increased memory - ignore errors
   console.log('Building Remix application...');
-  const buildResult = runCommand('NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" npx remix vite:build');
+  const buildResult = runCommandWithEnv('npx remix vite:build', {
+    NODE_ENV: 'production',
+    NODE_OPTIONS: '--max-old-space-size=4096',
+    NETLIFY_PATCH_DIR: patchDir,
+    CI: 'false'
+  });
   
   if (!buildResult) {
     console.warn('Build command failed, but continuing with deployment...');
