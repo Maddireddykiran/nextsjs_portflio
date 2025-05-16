@@ -18,7 +18,9 @@
     "vercel-build": "node ./scripts/vercel-build.cjs",
     "netlify-build": "node ./scripts/netlify-build.js",
     "netlify-build:cjs": "node ./scripts/netlify-build.cjs",
-    "generate:patch": "node ./scripts/create-patches.js"
+    "cleanup-deps": "node ./scripts/cleanup-deps.cjs",
+    "generate:patch": "node ./scripts/create-patches.js",
+    "netlify-prebuild": "node ./scripts/cleanup-deps.cjs && npm install --force --no-audit --no-fund"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",

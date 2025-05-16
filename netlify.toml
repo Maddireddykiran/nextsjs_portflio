@@ -1,5 +1,5 @@
 [build]
-  command = "CI=false npm run netlify-build:cjs"
+  command = "npm run netlify-prebuild && CI=false npm run netlify-build:cjs"
   publish = "build/client"
 
 [build.environment]
@@ -8,6 +8,7 @@
   CI = "false"
   NODE_ENV = "production"
   NODE_OPTIONS = "--max-old-space-size=4096"
+  NPM_FLAGS = "--no-audit --no-fund --ignore-scripts --legacy-peer-deps"
 
 # Handle SPA routing
 [[redirects]]

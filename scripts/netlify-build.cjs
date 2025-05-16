@@ -71,6 +71,41 @@ module.exports.Fragment = React.Fragment;
 `;
   fs.writeFileSync(path.join(patchDir, 'jsx-dev-runtime.js'), jsxDevRuntimeContent);
   
+  // Create an explicit .npmrc file to handle peer dependencies
+  console.log('Setting up build configuration...');
+  const npmrcContent = `legacy-peer-deps=true
+auto-install-peers=true
+fund=false
+strict-peer-dependencies=false
+ignore-scripts=true
+update-notifier=false
+audit=false
+`;
+  fs.writeFileSync('.npmrc', npmrcContent);
+
+  console.log('Installing dependencies...');
+  
+  // Try different approaches to installing dependencies
+  try {
+    // First, try to use npm ci with legacy peer deps
+    console.log('Attempting npm ci with legacy peer deps...');
+    execSync('npm ci --legacy-peer-deps --no-audit --no-fund', { stdio: 'inherit' });
+  } catch (installError) {
+    console.warn('npm ci failed, falling back to npm install:', installError.message);
+    
+    try {
+      // Then try regular npm install with legacy peer deps
+      console.log('Attempting npm install with legacy peer deps...');
+      execSync('npm install --legacy-peer-deps --no-audit --no-fund', { stdio: 'inherit' });
+    } catch (regularInstallError) {
+      console.warn('Regular npm install failed, trying with force:', regularInstallError.message);
+      
+      // Last resort: force install
+      console.log('Attempting forced npm install...');
+      execSync('npm install --force --no-audit --no-fund', { stdio: 'inherit' });
+    }
+  }
+  
   // Update node_modules temporarily to ensure JSX runtime is available
   const nodeModulesJSXPath = path.join(process.cwd(), 'node_modules', 'react', 'jsx-runtime.js');
   if (!fs.existsSync(path.dirname(nodeModulesJSXPath))) {
@@ -82,17 +117,13 @@ module.exports.Fragment = React.Fragment;
     }
   }
   
-  // Force install of necessary dependencies
-  console.log('Installing required dependencies...');
-  execSync('npm install --no-save react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1', { stdio: 'inherit' });
-  
-  // Create an explicit .npmrc file to handle peer dependencies
-  console.log('Setting up build configuration...');
-  fs.writeFileSync('.npmrc', 'legacy-peer-deps=true\n');
+  // Force install of necessary dependencies specifically
+  console.log('Installing critical dependencies...');
+  execSync('npm install --no-save --force react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1', { stdio: 'inherit' });
   
   // Run the build command with increased memory
   console.log('Building Remix application...');
-  execSync('NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" remix vite:build', { 
+  execSync('NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" npx remix vite:build', { 
     stdio: 'inherit',
     env: { 
       ...process.env,
