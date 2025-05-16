@@ -54,42 +54,42 @@ export const DisplacementSphere = props => {
     mouse.current = new Vector2(0.8, 0.5);
     
     try {
-      renderer.current = new WebGLRenderer({
-        canvas: canvasRef.current,
-        antialias: false,
-        alpha: true,
+    renderer.current = new WebGLRenderer({
+      canvas: canvasRef.current,
+      antialias: false,
+      alpha: true,
         powerPreference: 'default',
         failIfMajorPerformanceCaveat: false,
-      });
+    });
       
-      renderer.current.setSize(innerWidth, innerHeight);
-      renderer.current.setPixelRatio(1);
-      renderer.current.outputColorSpace = LinearSRGBColorSpace;
+    renderer.current.setSize(innerWidth, innerHeight);
+    renderer.current.setPixelRatio(1);
+    renderer.current.outputColorSpace = LinearSRGBColorSpace;
 
-      camera.current = new PerspectiveCamera(54, innerWidth / innerHeight, 0.1, 100);
-      camera.current.position.z = 52;
+    camera.current = new PerspectiveCamera(54, innerWidth / innerHeight, 0.1, 100);
+    camera.current.position.z = 52;
 
-      scene.current = new Scene();
+    scene.current = new Scene();
 
-      material.current = new MeshPhongMaterial();
-      material.current.onBeforeCompile = shader => {
-        uniforms.current = UniformsUtils.merge([
-          shader.uniforms,
-          { time: { type: 'f', value: 0 } },
-        ]);
+    material.current = new MeshPhongMaterial();
+    material.current.onBeforeCompile = shader => {
+      uniforms.current = UniformsUtils.merge([
+        shader.uniforms,
+        { time: { type: 'f', value: 0 } },
+      ]);
 
-        shader.uniforms = uniforms.current;
-        shader.vertexShader = vertexShader;
-        shader.fragmentShader = fragmentShader;
-      };
+      shader.uniforms = uniforms.current;
+      shader.vertexShader = vertexShader;
+      shader.fragmentShader = fragmentShader;
+    };
 
-      startTransition(() => {
-        geometry.current = new SphereGeometry(32, 128, 128);
-        sphere.current = new Mesh(geometry.current, material.current);
-        sphere.current.position.z = 0;
-        sphere.current.modifier = Math.random();
-        scene.current.add(sphere.current);
-      });
+    startTransition(() => {
+      geometry.current = new SphereGeometry(32, 128, 128);
+      sphere.current = new Mesh(geometry.current, material.current);
+      sphere.current.position.z = 0;
+      sphere.current.modifier = Math.random();
+      scene.current.add(sphere.current);
+    });
     } catch (error) {
       console.error('WebGL initialization error:', error);
       setHasWebGLError(true);
@@ -97,8 +97,8 @@ export const DisplacementSphere = props => {
 
     return () => {
       if (renderer.current && scene.current) {
-        cleanScene(scene.current);
-        cleanRenderer(renderer.current);
+      cleanScene(scene.current);
+      cleanRenderer(renderer.current);
       }
     };
   }, []);
@@ -118,7 +118,7 @@ export const DisplacementSphere = props => {
 
     return () => {
       if (lights.current) {
-        removeLights(lights.current);
+      removeLights(lights.current);
       }
     };
   }, [theme, hasWebGLError]);
