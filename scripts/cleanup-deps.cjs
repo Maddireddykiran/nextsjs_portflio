@@ -8,7 +8,7 @@ const { execSync } = require('child_process');
 console.log('Cleaning up dependency files...');
 
 // Check if we're in a CI environment
-const isCI = process.env.CI === 'true' || process.env.NETLIFY === 'true';
+const isCI = process.env.CI === 'true' || process.env.CF_PAGES === 'true';
 
 // Remove package-lock.json if it exists
 if (fs.existsSync('package-lock.json')) {

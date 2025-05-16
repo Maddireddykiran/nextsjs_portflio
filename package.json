@@ -16,18 +16,8 @@
     "dev:storybook": "storybook dev -p 6006",
     "build:storybook": "storybook build",
     "deploy:storybook": "wrangler pages deploy ./storybook-static --project-name portfolio-storybook --branch main",
-    "vercel-build": "node ./scripts/vercel-build.cjs",
-    "netlify-build": "node ./scripts/netlify-build.js",
-    "netlify-build:cjs": "cross-env CI=false NODE_ENV=production node ./scripts/netlify-build.cjs",
-    "netlify-minimal": "node ./scripts/deploy-minimal.cjs",
     "cleanup-deps": "node ./scripts/cleanup-deps.cjs",
-    "generate:patch": "node ./scripts/create-patches.js",
-    "netlify-prebuild": "node ./scripts/cleanup-deps.cjs && npm install --force --no-audit --no-fund",
-    "netlify-preinit": "node ./scripts/netlify-preinit.cjs",
-    "netlify-check": "node ./scripts/netlify-check.cjs",
-    "netlify-force-build": "node ./scripts/netlify-force-build-alt.cjs || node ./scripts/minimal-build.cjs",
-    "netlify-force-build:original": "node ./scripts/netlify-force-build.cjs || node ./scripts/minimal-build.cjs",
-    "minimal-build": "node ./scripts/minimal-build.cjs"
+    "generate:patch": "node ./scripts/create-patches.js"
   },
   "dependencies": {
     "@aws-sdk/client-ses": "^3.515.0",

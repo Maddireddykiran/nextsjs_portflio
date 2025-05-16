@@ -16,11 +16,11 @@ A modern, responsive portfolio website built with [Remix](https://remix.run/), [
 - Three.js for 3D/WebGL effects
 - Framer Motion for animations
 - CSS Modules for styling
-- Vercel/Netlify for deployment
+- Cloudflare Pages for deployment
 
 ## Installation & Development
 
-Make sure you have nodejs `19.9.0` or higher and npm `9.6.3` or higher installed.
+Make sure you have nodejs `20.10.0` or higher and npm `10.x` or higher installed.
 
 1. Install dependencies:
 
@@ -42,44 +42,21 @@ npm run dev:storybook
 
 ## Deployment
 
-### Deploying to Netlify
-
-The project is configured for easy deployment to Netlify. See the [NETLIFY-DEPLOY.md](./NETLIFY-DEPLOY.md) file for detailed instructions.
-
-Quick deployment:
-
-```bash
-# Install Netlify CLI
-npm install -g netlify-cli
-
-# Login to Netlify
-netlify login
-
-# Deploy to Netlify
-netlify deploy --prod
-```
-
-### Deploying to Vercel
-
-The project is configured for easy deployment to Vercel. See the [VERCEL-DEPLOY.md](./VERCEL-DEPLOY.md) file for detailed instructions.
-
-Quick deployment:
-
-```bash
-# Deploy to Vercel
-vercel
-
-# Production deployment
-vercel --prod
-```
-
 ### Deploying to Cloudflare Pages
 
-The project can also be deployed to Cloudflare Pages:
+The project is configured for deployment to Cloudflare Pages. See the [CLOUDFLARE-DEPLOY.md](./CLOUDFLARE-DEPLOY.md) file for detailed instructions.
+
+Quick deployment:
 
 ```bash
+# Build the project
+npm run build
+
+# Deploy to Cloudflare Pages
 npm run deploy
 ```
+
+You can also set up automatic deployments from GitHub by connecting your repository to Cloudflare Pages in the Cloudflare dashboard.
 
 ## Contact Form Setup
 
@@ -87,7 +64,7 @@ To get the contact form working:
 
 1. Create an AWS account and set up SES (Simple Email service)
 2. Create a `.dev.vars` file from the `.dev.vars.example` template 
-3. Add the same environment variables in your deployment platform
+3. Add the same environment variables in the Cloudflare Pages dashboard
 
 ## License
 
