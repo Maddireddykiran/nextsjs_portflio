@@ -9,9 +9,13 @@ const path = require('path');
 process.env.CI = 'false';
 
 try {
+  // Ensure React dependencies are installed
+  console.log('Checking dependencies...');
+  execSync('npm ls react', { stdio: 'inherit' });
+  
   // Run the build command
   console.log('Building Remix application...');
-  execSync('remix vite:build', { stdio: 'inherit' });
+  execSync('NODE_ENV=production remix vite:build', { stdio: 'inherit' });
   
   console.log('Build completed, creating redirect file...');
   

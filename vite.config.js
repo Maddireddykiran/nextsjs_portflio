@@ -15,9 +15,17 @@ export default defineConfig({
   assetsInclude: ['**/*.glb', '**/*.hdr', '**/*.glsl'],
   build: {
     assetsInlineLimit: 1024,
+    rollupOptions: {
+      external: ['react/jsx-runtime'],
+    }
   },
   server: {
     port: 7777,
+  },
+  resolve: {
+    alias: {
+      'react/jsx-runtime': 'react/jsx-runtime.js'
+    }
   },
   plugins: [
     mdx({
