@@ -13,12 +13,22 @@ const __dirname = path.dirname(__filename);
 // Ensure we're in the project root
 process.chdir(path.resolve(__dirname, '..'));
 
-// Make sure we have the right Node.js version
+// Log environment information
 console.log(`Node version: ${process.version}`);
+console.log(`Working directory: ${process.cwd()}`);
+console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 
 // Check if we're in a CI environment (Vercel)
 const isCI = process.env.CI === 'true' || process.env.VERCEL === '1';
 console.log(`CI environment: ${isCI ? 'Yes' : 'No'}`);
+
+// List available scripts for debugging
+try {
+  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+  console.log('Available scripts:', Object.keys(packageJson.scripts).join(', '));
+} catch (error) {
+  console.error('Failed to read package.json:', error);
+}
 
 try {
   // Ensure clean build
@@ -33,10 +43,29 @@ try {
   // Set environment variables for the build
   process.env.NODE_ENV = 'production';
   process.env.CI = 'false'; // Prevent CI mode from failing on warnings
-  process.env.REMIX_DIST = path.join(process.cwd(), 'build/client');
   
-  // Run the build command
-  execSync('npm run build', { stdio: 'inherit' });
+  // Explicitly set the output directory
+  process.env.REMIX_DIST = path.join(process.cwd(), 'build/client');
+  console.log(`Setting REMIX_DIST to: ${process.env.REMIX_DIST}`);
+  
+  // Try using a direct build command instead of npm run build
+  console.log('Running build command: cross-env CI=false NODE_ENV=production remix vite:build');
+  try {
+    execSync('cross-env CI=false NODE_ENV=production remix vite:build', { 
+      stdio: 'inherit',
+      env: { ...process.env }
+    });
+  } catch (buildError) {
+    console.error('❌ Build command failed. Trying fallback build...');
+    console.error(buildError);
+    
+    // Try direct vite build as fallback
+    console.log('Running fallback build: npx vite build');
+    execSync('npx vite build --outDir build/client', { 
+      stdio: 'inherit',
+      env: { ...process.env }
+    });
+  }
   
   console.log('✅ Build completed successfully');
   
@@ -53,6 +82,9 @@ try {
     process.exit(1);
   }
 } catch (error) {
-  console.error('❌ Build failed:', error);
+  console.error('❌ Build failed with detailed error:');
+  console.error(error.message || error);
+  if (error.stdout) console.error('stdout:', error.stdout.toString());
+  if (error.stderr) console.error('stderr:', error.stderr.toString());
   process.exit(1);
 } 

@@ -14,6 +14,8 @@
     "start": "wrangler pages dev ./build/client",
     "typecheck": "tsc",
     "vercel-build": "node ./scripts/vercel-build.js",
+    "vercel-direct-build": "cross-env CI=false NODE_ENV=production remix vite:build",
+    "vercel-fallback-build": "node ./scripts/vercel-fallback-build.js",
     "postinstall": "node ./scripts/draco.cjs",
     "deploy": "npm run build && wrangler pages deploy ./build/client --project-name portfolio",
     "dev:storybook": "storybook dev -p 6006",
