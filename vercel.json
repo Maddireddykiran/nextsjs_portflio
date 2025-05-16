@@ -50,11 +50,5 @@
         }
       ]
     }
-  ],
-  "buildEnvironment": {
-    "NODE_OPTIONS": "--max-old-space-size=4096",
-    "CI": "false",
-    "SKIP_RETRY": "false",
-    "NEXT_TELEMETRY_DISABLED": "1"
-  }
-} 
+  ]
+}
