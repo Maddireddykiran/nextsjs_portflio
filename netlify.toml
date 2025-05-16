@@ -8,8 +8,6 @@
   CI = "false"
   NODE_ENV = "production"
   NODE_OPTIONS = "--max-old-space-size=4096"
-  # Disable mise warning about idiomatic version files
-  MISE_DISABLE_IDIOMATIC_VERSION_FILES = "1"
 
 # Handle SPA routing
 [[redirects]]

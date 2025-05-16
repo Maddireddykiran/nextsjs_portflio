@@ -5,8 +5,19 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-// Handle mise warnings by setting environment variable
-process.env.MISE_DISABLE_IDIOMATIC_VERSION_FILES = '1';
+// Create mise configuration
+console.log('Setting up mise configuration...');
+const miseConfig = `[settings]
+enable_idiomatic_version_files = false
+
+[env]
+NODE_VERSION = "20.10.0"
+
+[tools]
+node = { version = "20.10.0" }
+`;
+
+fs.writeFileSync('.mise.toml', miseConfig);
 
 // Check Node.js version
 const nodeVersion = process.version;
@@ -71,9 +82,6 @@ module.exports.Fragment = React.Fragment;
     }
   }
   
-  // Make file to explicitly disable mise idiomatic version files
-  fs.writeFileSync('.mise.toml', 'idiomatic_version_files = false\n');
-  
   // Force install of necessary dependencies
   console.log('Installing required dependencies...');
   execSync('npm install --no-save react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1', { stdio: 'inherit' });
@@ -88,8 +96,7 @@ module.exports.Fragment = React.Fragment;
     stdio: 'inherit',
     env: { 
       ...process.env,
-      NETLIFY_PATCH_DIR: patchDir,
-      MISE_DISABLE_IDIOMATIC_VERSION_FILES: '1'
+      NETLIFY_PATCH_DIR: patchDir
     }
   });
   
@@ -99,7 +106,7 @@ module.exports.Fragment = React.Fragment;
     fs.rmSync(patchDir, { recursive: true, force: true });
   }
   
-  // Remove temporary .npmrc file
+  // Remove temporary configuration files
   if (fs.existsSync('.npmrc')) {
     fs.unlinkSync('.npmrc');
   }
