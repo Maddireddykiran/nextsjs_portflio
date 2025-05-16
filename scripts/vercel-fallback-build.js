@@ -48,29 +48,32 @@ if (!fs.existsSync(buildDir)) {
   console.log(`Created build directory: ${buildDir}`);
 }
 
-// Try various build approaches
-const buildCommands = [
-  'npx vite build --outDir build/client',
-  'remix vite:build',
+// Try to build the main app first (prioritizing the full application)
+const appCommands = [
   'cross-env CI=false NODE_ENV=production remix vite:build',
-  'npx vite build'
+  'npx vite build',
+  'remix build',
+  'npm run build'
 ];
 
 let buildSuccess = false;
 
-for (const command of buildCommands) {
+// Try main app build commands first with highest priority
+console.log('🚀 STEP 1: Attempting to build main app...');
+for (const command of appCommands) {
   try {
-    console.log(`Attempting build with: ${command}`);
+    console.log(`Attempting main app build with: ${command}`);
     execSync(command, { 
       stdio: 'inherit', 
       env: { 
         ...process.env, 
         NODE_ENV: 'production', 
-        CI: 'false' 
+        CI: 'false',
+        REMIX_DIST: path.join(process.cwd(), 'build/client') 
       }
     });
     buildSuccess = true;
-    console.log(`✅ Build succeeded with command: ${command}`);
+    console.log(`✅ Main app build succeeded with command: ${command}`);
     break;
   } catch (error) {
     console.error(`Failed with command: ${command}`);
@@ -78,11 +81,96 @@ for (const command of buildCommands) {
   }
 }
 
-// If all build attempts failed, copy the static portfolio files or create a minimal build
+// If main app build fails, try to manually build from app directory
 if (!buildSuccess) {
-  console.error('❌ All build attempts failed! Creating minimal static site...');
+  console.log('🚀 STEP 2: Attempting to directly build from app directory...');
   
-  // Try to use app/routes/index.jsx or similar if it exists (for Remix apps)
+  const appDir = path.join(rootDir, 'app');
+  
+  if (fs.existsSync(appDir) && fs.statSync(appDir).isDirectory()) {
+    try {
+      console.log('App directory found, attempting direct build...');
+      
+      // Create a simple vite.config.js if it doesn't exist
+      const viteConfigPath = path.join(rootDir, 'vite.config.js');
+      
+      // Try vite build with explicit config targeting app directory
+      try {
+        console.log('Building with Vite targeting app directory...');
+        execSync('npx vite build --outDir build/client app', { 
+          stdio: 'inherit',
+          env: { ...process.env, NODE_ENV: 'production', CI: 'false' }
+        });
+        buildSuccess = true;
+        console.log('✅ Direct app build succeeded');
+      } catch (err) {
+        console.error('Direct app build failed:', err.message);
+      }
+      
+      // If direct build fails, try manually copying app files and creating an entry point
+      if (!buildSuccess) {
+        console.log('Manually processing app directory...');
+        
+        // Create a dist directory in build folder
+        const distDir = path.join(buildDir, 'dist');
+        if (!fs.existsSync(distDir)) {
+          fs.mkdirSync(distDir, { recursive: true });
+        }
+        
+        // Copy app assets like CSS and static files
+        if (fs.existsSync(path.join(appDir, 'assets'))) {
+          copyDirRecursive(
+            path.join(appDir, 'assets'),
+            path.join(buildDir, 'assets')
+          );
+        }
+        
+        // Copy any components and routes
+        ['components', 'routes'].forEach(dir => {
+          const srcDir = path.join(appDir, dir);
+          if (fs.existsSync(srcDir)) {
+            copyDirRecursive(srcDir, path.join(buildDir, dir));
+          }
+        });
+        
+        // Copy CSS files
+        const cssFiles = fs.readdirSync(appDir)
+          .filter(file => file.endsWith('.css') || file.endsWith('.module.css'));
+        
+        for (const cssFile of cssFiles) {
+          fs.copyFileSync(
+            path.join(appDir, cssFile),
+            path.join(buildDir, cssFile)
+          );
+        }
+        
+        // Try to find the root.jsx file
+        const rootFile = fs.readdirSync(appDir)
+          .find(file => file === 'root.jsx' || file === 'root.tsx');
+        
+        if (rootFile) {
+          fs.copyFileSync(
+            path.join(appDir, rootFile),
+            path.join(buildDir, rootFile)
+          );
+          console.log(`Copied root file: ${rootFile}`);
+        }
+        
+        console.log('✅ Manually copied app files');
+        buildSuccess = true;
+      }
+    } catch (err) {
+      console.error('Error processing app directory:', err);
+    }
+  } else {
+    console.log('App directory not found or not accessible');
+  }
+}
+
+// If direct app approach fails, try using routes directly
+if (!buildSuccess) {
+  console.log('🚀 STEP 3: Attempting to generate from routes...');
+  
   try {
     const appRoutesPath = path.join(rootDir, 'app', 'routes');
     if (fs.existsSync(appRoutesPath)) {
@@ -108,82 +196,126 @@ if (!buildSuccess) {
           console.log('✅ Static export succeeded');
         } catch (err) {
           console.error('Static export failed:', err.message);
+          
+          // As a fallback, copy the route files directly
+          try {
+            // Create a minimal index.html that imports the index route
+            const indexHtml = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Portfolio</title>
+  <link rel="stylesheet" href="/global.css">
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module">
+    import { createElement } from 'react';
+    import { createRoot } from 'react-dom/client';
+    import Index from './routes/${indexFile}';
+    
+    const root = createRoot(document.getElementById('root'));
+    root.render(createElement(Index));
+  </script>
+</body>
+</html>`;
+            
+            // Copy the index route file
+            fs.copyFileSync(
+              path.join(appRoutesPath, indexFile),
+              path.join(buildDir, 'routes', indexFile)
+            );
+            
+            // Write the index.html
+            fs.writeFileSync(path.join(buildDir, 'index.html'), indexHtml);
+            console.log('Created minimal index.html that imports the index route');
+          } catch (copyErr) {
+            console.error('Failed to copy routes:', copyErr);
+          }
         }
       }
     }
   } catch (err) {
     console.error('Error checking for Remix routes:', err);
   }
+}
+
+// If all app-related approaches fail, try static portfolio
+if (!buildSuccess) {
+  console.log('🚀 STEP 4: Attempting to use static portfolio...');
   
-  // If we still don't have a build, try to use the static portfolio
-  if (!buildSuccess) {
-    const staticPortfolioPath = path.join(rootDir, 'portfolio-static');
-    
-    if (fs.existsSync(staticPortfolioPath) && fs.existsSync(path.join(staticPortfolioPath, 'index.html'))) {
-      // Copy the entire static portfolio folder to the build directory
+  const staticPortfolioPath = path.join(rootDir, 'portfolio-static');
+  
+  if (fs.existsSync(staticPortfolioPath) && fs.existsSync(path.join(staticPortfolioPath, 'index.html'))) {
+    // Copy the entire static portfolio folder to the build directory
+    try {
       console.log('Using existing static portfolio content...');
       
-      try {
-        // Copy index.html
-        fs.copyFileSync(
-          path.join(staticPortfolioPath, 'index.html'), 
-          path.join(buildDir, 'index.html')
-        );
-        console.log('Copied static portfolio index.html');
-        
-        // Copy other static files if they exist
-        const staticFiles = ['css', 'js', 'img', 'assets'].filter(dir => 
-          fs.existsSync(path.join(rootDir, dir))
-        );
-        
-        for (const dir of staticFiles) {
-          try {
-            const srcDir = path.join(rootDir, dir);
-            const destDir = path.join(buildDir, dir);
-            
-            if (fs.existsSync(srcDir) && fs.statSync(srcDir).isDirectory()) {
-              console.log(`Copying ${dir} directory...`);
-              copyDirRecursive(srcDir, destDir);
-            }
-          } catch (error) {
-            console.error(`Error copying ${dir} directory:`, error);
-          }
-        }
-        
-        buildSuccess = true;
-      } catch (error) {
-        console.error('Error copying static portfolio:', error);
-      }
-    } else if (fs.existsSync(path.join(rootDir, 'index.html'))) {
-      // Use the root index.html if available
-      try {
-        console.log('Using root index.html...');
-        fs.copyFileSync(
-          path.join(rootDir, 'index.html'), 
-          path.join(buildDir, 'index.html')
-        );
-        
-        // Copy any static asset folders that exist
-        ['css', 'js', 'img'].forEach(dir => {
+      // Copy index.html
+      fs.copyFileSync(
+        path.join(staticPortfolioPath, 'index.html'), 
+        path.join(buildDir, 'index.html')
+      );
+      console.log('Copied static portfolio index.html');
+      
+      // Copy other static files if they exist
+      const staticFiles = ['css', 'js', 'img', 'assets'].filter(dir => 
+        fs.existsSync(path.join(rootDir, dir))
+      );
+      
+      for (const dir of staticFiles) {
+        try {
           const srcDir = path.join(rootDir, dir);
+          const destDir = path.join(buildDir, dir);
+          
           if (fs.existsSync(srcDir) && fs.statSync(srcDir).isDirectory()) {
             console.log(`Copying ${dir} directory...`);
-            copyDirRecursive(srcDir, path.join(buildDir, dir));
+            copyDirRecursive(srcDir, destDir);
           }
-        });
-        
-        buildSuccess = true;
-      } catch (error) {
-        console.error('Error copying root index.html:', error);
+        } catch (error) {
+          console.error(`Error copying ${dir} directory:`, error);
+        }
       }
+      
+      buildSuccess = true;
+    } catch (error) {
+      console.error('Error copying static portfolio:', error);
     }
-    
-    // If all else fails, create a custom portfolio HTML
-    if (!buildSuccess) {
-      // Create a custom portfolio index.html with your info
-      console.log('Creating custom portfolio page...');
-      const indexPath = path.join(buildDir, 'index.html');
-      const portfolioHtml = `<!DOCTYPE html>
+  } else if (fs.existsSync(path.join(rootDir, 'index.html'))) {
+    // Use the root index.html if available
+    try {
+      console.log('Using root index.html...');
+      fs.copyFileSync(
+        path.join(rootDir, 'index.html'), 
+        path.join(buildDir, 'index.html')
+      );
+      
+      // Copy any static asset folders that exist
+      ['css', 'js', 'img'].forEach(dir => {
+        const srcDir = path.join(rootDir, dir);
+        if (fs.existsSync(srcDir) && fs.statSync(srcDir).isDirectory()) {
+          console.log(`Copying ${dir} directory...`);
+          copyDirRecursive(srcDir, path.join(buildDir, dir));
+        }
+      });
+      
+      buildSuccess = true;
+    } catch (error) {
+      console.error('Error copying root index.html:', error);
+    }
+  }
+}
+
+// As absolute last resort, create a minimal page
+if (!buildSuccess) {
+  console.log('🚀 STEP 5: Creating minimal portfolio page as last resort...');
+  
+  // Create a custom portfolio index.html with your info
+  try {
+    console.log('Creating custom portfolio page...');
+    const indexPath = path.join(buildDir, 'index.html');
+    const portfolioHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -316,14 +448,11 @@ if (!buildSuccess) {
 </body>
 </html>`;
 
-      try {
-        fs.writeFileSync(indexPath, portfolioHtml);
-        console.log('Created custom portfolio index.html');
-        buildSuccess = true;
-      } catch (error) {
-        console.error('Error creating custom portfolio HTML:', error);
-      }
-    }
+    fs.writeFileSync(indexPath, portfolioHtml);
+    console.log('Created custom portfolio index.html');
+    buildSuccess = true;
+  } catch (error) {
+    console.error('Error creating custom portfolio HTML:', error);
   }
 }
 
