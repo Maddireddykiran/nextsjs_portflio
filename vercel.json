@@ -3,7 +3,6 @@
   "outputDirectory": "build/client",
   "devCommand": "npm run dev",
   "framework": "remix",
-  "ignoreCommand": "echo 'Ignoring build errors...'",
   "installCommand": "npm install --force",
   "headers": [
     {
@@ -50,5 +49,10 @@
         }
       ]
     }
-  ]
+  ],
+  "buildEnvironment": {
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "CI": "false",
+    "NODE_ENV": "production"
+  }
 }
