@@ -3,10 +3,10 @@
   publish = "build/client"
 
 [build.environment]
-  NODE_VERSION = "19.9.0"
-  NPM_VERSION = "9.6.3"
+  NODE_VERSION = "20.10.0"
+  NPM_VERSION = "10.2.3"
   CI = "false"
-  NODE_OPTIONS = "--experimental-modules --experimental-json-modules"
+  NODE_OPTIONS = "--max-old-space-size=4096"
 
 # Handle SPA routing
 [[redirects]]

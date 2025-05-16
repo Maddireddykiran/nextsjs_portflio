@@ -5,6 +5,18 @@ const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
+// Check Node.js version
+const nodeVersion = process.version;
+console.log(`Using Node.js version: ${nodeVersion}`);
+
+const requiredNodeVersion = 'v20.10.0';
+const requiredNodeMajor = 20;
+
+if (parseInt(nodeVersion.substring(1).split('.')[0], 10) < requiredNodeMajor) {
+  console.warn(`⚠️ Warning: Using Node.js ${nodeVersion} but >= ${requiredNodeVersion} is recommended.`);
+  console.log('Continuing build process anyway...');
+}
+
 // Ensure environment variables are set
 process.env.CI = 'false';
 
