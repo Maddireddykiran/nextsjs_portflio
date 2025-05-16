@@ -17,6 +17,7 @@
     "deploy:storybook": "wrangler pages deploy ./storybook-static --project-name portfolio-storybook --branch main",
     "vercel-build": "node ./scripts/vercel-build.cjs",
     "netlify-build": "node ./scripts/netlify-build.js",
+    "netlify-build:cjs": "node ./scripts/netlify-build.cjs",
     "generate:patch": "node ./scripts/create-patches.js"
   },
   "dependencies": {

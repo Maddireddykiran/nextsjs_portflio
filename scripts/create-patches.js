@@ -1,11 +1,17 @@
 // Helper script to create patches for deployment
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Get current directory
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '..');
 
 console.log('Creating deployment patches...');
 
 // Create patch directory
-const patchDir = path.join(process.cwd(), 'patches');
+const patchDir = path.join(projectRoot, 'patches');
 if (!fs.existsSync(patchDir)) {
   fs.mkdirSync(patchDir, { recursive: true });
 }
@@ -14,11 +20,10 @@ if (!fs.existsSync(patchDir)) {
 const jsxRuntimePath = path.join(patchDir, 'jsx-runtime.js');
 fs.writeFileSync(jsxRuntimePath, `
 // JSX Runtime shim for deployment
-const React = require('react');
-module.exports = React.jsx;
-module.exports.jsx = React.jsx;
-module.exports.jsxs = React.jsxs;
-module.exports.Fragment = React.Fragment;
+import * as React from 'react';
+export const jsx = React.jsx;
+export const jsxs = React.jsxs;
+export const Fragment = React.Fragment;
 `);
 
 console.log('JSX runtime patch created at: ' + jsxRuntimePath);
@@ -27,10 +32,9 @@ console.log('JSX runtime patch created at: ' + jsxRuntimePath);
 const jsxDevRuntimePath = path.join(patchDir, 'jsx-dev-runtime.js');
 fs.writeFileSync(jsxDevRuntimePath, `
 // JSX Dev Runtime shim for deployment
-const React = require('react');
-module.exports = React.jsxDEV;
-module.exports.jsxDEV = React.jsxDEV;
-module.exports.Fragment = React.Fragment;
+import * as React from 'react';
+export const jsxDEV = React.jsxDEV || React.jsx;
+export const Fragment = React.Fragment;
 `);
 
 console.log('JSX dev runtime patch created at: ' + jsxDevRuntimePath);
@@ -40,7 +44,7 @@ const createEmptyModule = (moduleName) => {
   const emptyModulePath = path.join(patchDir, `${moduleName.replace(/\//g, '-')}.js`);
   fs.writeFileSync(emptyModulePath, `
 // Empty module shim for "${moduleName}"
-module.exports = {};
+export default {};
 `);
   console.log(`Empty module created for "${moduleName}" at: ${emptyModulePath}`);
 };

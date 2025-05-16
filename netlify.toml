@@ -1,11 +1,12 @@
 [build]
-  command = "CI=false npm run netlify-build"
+  command = "CI=false npm run netlify-build:cjs"
   publish = "build/client"
 
 [build.environment]
   NODE_VERSION = "19.9.0"
   NPM_VERSION = "9.6.3"
   CI = "false"
+  NODE_OPTIONS = "--experimental-modules --experimental-json-modules"
 
 # Handle SPA routing
 [[redirects]]

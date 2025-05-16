@@ -1,15 +1,9 @@
-// Special build script for Netlify deployment
+// Special build script for Netlify deployment (CommonJS version)
 console.log('Starting Netlify build process...');
 
-import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Get current directory
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '..');
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
 
 // Ensure environment variables are set
 process.env.CI = 'false';
@@ -19,37 +13,41 @@ try {
   console.log('Creating temporary build patch for Netlify...');
   
   // Create a temporary directory for patched modules
-  const patchDir = path.join(projectRoot, 'netlify-patches');
+  const patchDir = path.join(process.cwd(), 'netlify-patches');
   if (!fs.existsSync(patchDir)) {
     fs.mkdirSync(patchDir, { recursive: true });
   }
   
-  // Create explicit JSX runtime shim files
+  // Create explicit JSX runtime shim files in CommonJS format
   const jsxRuntimeContent = `
-// JSX Runtime shim
-import * as React from 'react';
-export const jsx = React.jsx;
-export const jsxs = React.jsxs;
-export const Fragment = React.Fragment;
+// JSX Runtime shim - CommonJS version
+'use strict';
+const React = require('react');
+module.exports = React.jsx;
+module.exports.jsx = React.jsx;
+module.exports.jsxs = React.jsxs;
+module.exports.Fragment = React.Fragment;
 `;
   fs.writeFileSync(path.join(patchDir, 'jsx-runtime.js'), jsxRuntimeContent);
   
   const jsxDevRuntimeContent = `
-// JSX Dev Runtime shim
-import * as React from 'react';
-export const jsxDEV = React.jsxDEV || React.jsx;
-export const Fragment = React.Fragment;
+// JSX Dev Runtime shim - CommonJS version
+'use strict';
+const React = require('react');
+module.exports = React.jsxDEV || React.jsx;
+module.exports.jsxDEV = React.jsxDEV || React.jsx;
+module.exports.Fragment = React.Fragment;
 `;
   fs.writeFileSync(path.join(patchDir, 'jsx-dev-runtime.js'), jsxDevRuntimeContent);
   
   // Update node_modules temporarily to ensure JSX runtime is available
-  const nodeModulesJSXPath = path.join(projectRoot, 'node_modules', 'react', 'jsx-runtime.js');
+  const nodeModulesJSXPath = path.join(process.cwd(), 'node_modules', 'react', 'jsx-runtime.js');
   if (!fs.existsSync(path.dirname(nodeModulesJSXPath))) {
     fs.mkdirSync(path.dirname(nodeModulesJSXPath), { recursive: true });
     
     // If file doesn't exist, create a simple shim
     if (!fs.existsSync(nodeModulesJSXPath)) {
-      fs.writeFileSync(nodeModulesJSXPath, "export * from './jsx-runtime.js';");
+      fs.writeFileSync(nodeModulesJSXPath, "module.exports = require('./jsx-runtime');");
     }
   }
   
@@ -85,14 +83,14 @@ export const Fragment = React.Fragment;
   console.log('Build completed, creating redirect file...');
   
   // Ensure the build/client directory exists
-  if (!fs.existsSync(path.join(projectRoot, 'build', 'client'))) {
+  if (!fs.existsSync(path.join(process.cwd(), 'build', 'client'))) {
     throw new Error('Build directory not found. Build may have failed.');
   }
   
   // Create a _redirects file in the build/client directory
   const redirectsContent = '/*  /index.html  200';
   fs.writeFileSync(
-    path.join(projectRoot, 'build', 'client', '_redirects'),
+    path.join(process.cwd(), 'build', 'client', '_redirects'),
     redirectsContent
   );
   
@@ -108,7 +106,7 @@ export const Fragment = React.Fragment;
 `;
   
   fs.writeFileSync(
-    path.join(projectRoot, 'build', 'client', 'netlify.toml'),
+    path.join(process.cwd(), 'build', 'client', 'netlify.toml'),
     netlifyToml
   );
   
