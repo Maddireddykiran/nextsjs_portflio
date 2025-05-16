@@ -1,3 +1,22 @@
+# KV namespaces
 kv_namespaces = [
-  { id = "MY_KV", binding="MY_KV" }
+  { id = "MY_KV", binding = "MY_KV" }
 ]
+
+# Cloudflare Pages configuration
+[build]
+command = "node scripts/cloudflare-build.cjs"
+
+[site]
+bucket = "build/client"
+
+# Pages configuration (beta)
+[pages]
+build_output_directory = "build/client"
+
+# Ensure this is recognized as a Pages project
+compatibility_date = "2023-10-30"
+compatibility_flags = ["nodejs_compat"]
+
+[env.production]
+name = "portfolio"

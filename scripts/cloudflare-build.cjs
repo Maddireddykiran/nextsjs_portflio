@@ -20,6 +20,16 @@ function runCommand(command) {
   }
 }
 
+// Delete package-lock.json if it exists to avoid npm ci errors
+try {
+  if (fs.existsSync('package-lock.json')) {
+    console.log('Removing package-lock.json to ensure clean install');
+    fs.unlinkSync('package-lock.json');
+  }
+} catch (error) {
+  console.warn('Warning: Could not remove package-lock.json:', error.message);
+}
+
 // Run the fs-extra fix script first
 console.log('Running fs-extra fix script...');
 if (!runCommand('node ./scripts/fix-fs-extra.cjs')) {
@@ -31,6 +41,12 @@ console.log('Installing dependencies with npm install...');
 if (!runCommand('npm install --no-audit --no-fund')) {
   console.error('Failed to install dependencies with npm install');
   process.exit(1);
+}
+
+// Run package-lock fix script 
+console.log('Running package-lock fix script...');
+if (!runCommand('node ./scripts/package-lock-fix.js')) {
+  console.warn('Warning: package-lock fix script failed, continuing anyway');
 }
 
 // Build the project
