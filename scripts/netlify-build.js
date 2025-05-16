@@ -9,29 +9,64 @@ const path = require('path');
 process.env.CI = 'false';
 
 try {
-  // Ensure all dependencies are installed properly
-  console.log('Checking and installing dependencies...');
+  // Create a special build patch file for Remix
+  console.log('Creating temporary build patch for Netlify...');
   
-  // Force install of necessary peer dependencies
-  console.log('Installing React JSX Runtime dependencies...');
-  execSync('npm install --no-save react@18.2.0 react-dom@18.2.0', { stdio: 'inherit' });
+  // Create a temporary directory for patched modules
+  const patchDir = path.join(process.cwd(), 'netlify-patches');
+  if (!fs.existsSync(patchDir)) {
+    fs.mkdirSync(patchDir, { recursive: true });
+  }
   
-  // Create a temporary .npmrc file to force legacy peer deps
-  fs.writeFileSync('.npmrc.temp', 'legacy-peer-deps=true\n');
+  // Create explicit JSX runtime shim files
+  const jsxRuntimeContent = `
+module.exports = require('react/jsx-runtime');
+`;
+  fs.writeFileSync(path.join(patchDir, 'jsx-runtime.js'), jsxRuntimeContent);
   
-  // Run the build command with the temporary .npmrc
+  const jsxDevRuntimeContent = `
+module.exports = require('react/jsx-dev-runtime');
+`;
+  fs.writeFileSync(path.join(patchDir, 'jsx-dev-runtime.js'), jsxDevRuntimeContent);
+  
+  // Update node_modules temporarily to ensure JSX runtime is available
+  const nodeModulesJSXPath = path.join(process.cwd(), 'node_modules', 'react', 'jsx-runtime.js');
+  if (!fs.existsSync(path.dirname(nodeModulesJSXPath))) {
+    fs.mkdirSync(path.dirname(nodeModulesJSXPath), { recursive: true });
+    
+    // If file doesn't exist, create a simple shim
+    if (!fs.existsSync(nodeModulesJSXPath)) {
+      fs.writeFileSync(nodeModulesJSXPath, "module.exports = require('./jsx-runtime');");
+    }
+  }
+  
+  // Force install of necessary dependencies
+  console.log('Installing required dependencies...');
+  execSync('npm install --no-save react@18.2.0 react-dom@18.2.0 @remix-run/react@2.7.1', { stdio: 'inherit' });
+  
+  // Create an explicit .npmrc file to handle peer dependencies
+  console.log('Setting up build configuration...');
+  fs.writeFileSync('.npmrc', 'legacy-peer-deps=true\n');
+  
+  // Run the build command with increased memory
   console.log('Building Remix application...');
-  execSync('NODE_ENV=production remix vite:build', { 
+  execSync('NODE_ENV=production NODE_OPTIONS="--max-old-space-size=4096" remix vite:build', { 
     stdio: 'inherit',
     env: { 
       ...process.env,
-      NODE_OPTIONS: '--max-old-space-size=4096'
+      NETLIFY_PATCH_DIR: patchDir
     }
   });
   
+  // Clean up patch directory
+  console.log('Cleaning up temporary files...');
+  if (fs.existsSync(patchDir)) {
+    fs.rmSync(patchDir, { recursive: true, force: true });
+  }
+  
   // Remove temporary .npmrc file
-  if (fs.existsSync('.npmrc.temp')) {
-    fs.unlinkSync('.npmrc.temp');
+  if (fs.existsSync('.npmrc')) {
+    fs.unlinkSync('.npmrc');
   }
   
   console.log('Build completed, creating redirect file...');

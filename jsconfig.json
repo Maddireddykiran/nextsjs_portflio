@@ -1,9 +1,11 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
       "~/*": ["./app/*"]
-    }
+    },
+    "baseUrl": ".",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
   },
-  "include": ["app", ".storybook/story-container.jsx"]
+  "include": ["app"]
 }
